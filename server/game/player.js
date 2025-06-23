@@ -6,12 +6,18 @@ class Player {
     this.hp = 100;
   }
 
+  tick() {
+    // Placeholder for future per-frame logic
+  }
+
   update(action) {
     if (!action) return;
     switch (action.type) {
       case 'move':
         this.x += action.dx;
         this.y += action.dy;
+        this.x = Math.max(-400, Math.min(400, this.x));
+        this.y = Math.max(-300, Math.min(300, this.y));
         break;
       case 'damage':
         this.hp -= action.amount;

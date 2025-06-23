@@ -2,7 +2,12 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
-const { initGameLoop, addPlayer, removePlayer } = require('./game/game-loop');
+const {
+  initGameLoop,
+  addPlayer,
+  removePlayer,
+  handleAction,
+} = require('./game/game-loop');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,8 +21,7 @@ io.on('connection', (socket) => {
   addPlayer(socket.id);
 
   socket.on('playerAction', (action) => {
-    // Relay player action to game loop
-    io.emit('playerAction', { id: socket.id, action });
+    handleAction(socket.id, action);
   });
 
   socket.on('disconnect', () => {

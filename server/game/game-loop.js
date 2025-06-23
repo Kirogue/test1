@@ -1,23 +1,39 @@
+const Player = require('./player');
+
 const players = new Map();
+const pendingActions = new Map();
 
 function addPlayer(id) {
-  players.set(id, { id, x: 0, y: 0, hp: 100 });
+  players.set(id, new Player(id));
 }
 
 function removePlayer(id) {
   players.delete(id);
+  pendingActions.delete(id);
+}
+
+function handleAction(id, action) {
+  pendingActions.set(id, action);
 }
 
 function updatePlayers() {
-  for (const player of players.values()) {
-    // Example: simple random movement
-    player.x += Math.random() * 2 - 1;
-    player.y += Math.random() * 2 - 1;
+  for (const [id, player] of players.entries()) {
+    const action = pendingActions.get(id);
+    if (action) {
+      player.update(action);
+      pendingActions.delete(id);
+    }
+    player.tick();
   }
 }
 
 function getState() {
-  return Array.from(players.values());
+  return Array.from(players.values()).map(p => ({
+    id: p.id,
+    x: p.x,
+    y: p.y,
+    hp: p.hp,
+  }));
 }
 
 function initGameLoop(io) {
@@ -27,4 +43,4 @@ function initGameLoop(io) {
   }, 1000 / 60);
 }
 
-module.exports = { initGameLoop, addPlayer, removePlayer };
+module.exports = { initGameLoop, addPlayer, removePlayer, handleAction };
